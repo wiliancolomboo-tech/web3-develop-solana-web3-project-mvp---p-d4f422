@@ -1,0 +1,52 @@
+flowchart TD
+    subgraph Client Layer
+        Builder[University Builder / Student]
+        Sponsor[Hackathon Sponsor / DAO Allocator]
+        Peer[Verified Collegiate Peer]
+    end
+
+    subgraph Off-Chain Enterprise Gateway
+        AuthEngine[Enterprise Attestation Service]
+        ResendAPI[Resend Transactional Email Engine]
+        DiscordHook[Discord / Slack Realtime Webhook]
+    end
+
+    subgraph Solana Runtime Engine [CampusFlow Program]
+        InitGrant[initialize_grant]
+        VerifyStudent[verify_student_attestation]
+        SubmitMilestone[submit_milestone]
+        CastVouch[cast_peer_vouch]
+        ReleaseFunds[release_milestone_funds]
+        
+        StateGrant[Grant State PDA]
+        StateStudent[Student Profile PDA]
+        StateMilestone[Milestone PDA]
+        VaultEscrow[PDA Token Escrow Vault]
+    end
+
+    subgraph Target Settlement
+        BuilderTokenAccount[Builder SPL Token Account]
+    end
+
+    %% Flow interactions
+    Sponsor -->|1. Fund & Config Vault| InitGrant
+    InitGrant --> StateGrant
+    InitGrant --> VaultEscrow
+
+    Builder -->|2. Verify Student Email| AuthEngine
+    AuthEngine -->|3. Dispatch Ed25519 Attestation Sig| VerifyStudent
+    VerifyStudent --> StateStudent
+    AuthEngine -.->|Send confirmation| ResendAPI
+
+    Builder -->|4. Submit Deliverables| SubmitMilestone
+    SubmitMilestone --> StateMilestone
+    StateMilestone -.->|Alert Evaluators| DiscordHook
+
+    Peer -->|5. Cast Quadratic Vouch| CastVouch
+    CastVouch --> StateMilestone
+
+    Sponsor -->|6. Approve & Trigger Release| ReleaseFunds
+    ReleaseFunds --> StateMilestone
+    ReleaseFunds -->|CPI Transfer| VaultEscrow
+    VaultEscrow -->|Disburse SPL Tokens| BuilderTokenAccount
+    ReleaseFunds -.->|Disbursement Telemetry| DiscordHook

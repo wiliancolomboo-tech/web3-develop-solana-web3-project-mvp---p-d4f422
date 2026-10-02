@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  campusflow-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - RESEND_API_KEY=re_live_enterprise_grant_key
+      - DISCORD_SLACK_WEBHOOK=https://discord.com/api/webhooks/your-id/your-token
+      - PROGRAM_ID=CampFlow11111111111111111111111111111111111
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"

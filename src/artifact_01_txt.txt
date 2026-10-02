@@ -1,0 +1,8 @@
+┌────────────────────────────────────────────────────────────────────────┐
+│                        CAMPUSFLOW AT A GLANCE                          │
+├──────────────────────┬──────────────────────┬──────────────────────────┤
+│ Zero-Knowledge /     │ PDA Milestone Escrow │ Enterprise Real-Time     │
+│ Ed25519 Verification │ Vaults               │ Webhooks & Resend        │
+│ Cryptographic .edu   │ Trustless release    │ Sub-second Slack/Discord │
+│ attestation gateway  │ tied to peer vouches │ alerts & receipt emails  │
+└──────────────────────┴──────────────────────┴──────────────────────────┘
