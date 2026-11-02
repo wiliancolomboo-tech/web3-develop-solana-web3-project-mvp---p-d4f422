@@ -1,0 +1,1 @@
+sha256sum demo-evidence.zip

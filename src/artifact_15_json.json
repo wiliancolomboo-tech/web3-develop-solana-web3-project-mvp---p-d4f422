@@ -1,0 +1,7 @@
+{
+  "status": "healthy",
+  "service": "vibestream-enterprise-daemon",
+  "uptimeSeconds": 42.18,
+  "timestamp": "2025-02-15T12:00:00.000Z",
+  "solanaEndpoint": "https://api.devnet.solana.com"
+}

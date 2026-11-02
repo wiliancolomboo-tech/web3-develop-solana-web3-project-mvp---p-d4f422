@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  solana-validator:
+    image: solanalabs/solana:v1.18.17
+    container_name: campusvibe-validator
+    ports:
+      - "8899:8899"
+      - "8900:8900"
+    command: >
+      solana-test-validator
+      --reset
+      --rpc-port 8899
+      --bind-address 0.0.0.0
+    healthcheck:
+      test: ["CMD", "solana", "cluster-version", "--url", "http://127.0.0.1:8899"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+  relayer:
+    build:
+      context: ./relayer
+      dockerfile: Dockerfile
+    container_name: campusvibe-relayer
+    depends_on:
+      solana-validator:
+        condition: service_healthy
+    environment:
+      - SOLANA_RPC_URL=http://solana-validator:8899
+      - RESEND_API_KEY=${RESEND_API_KEY:-re_test_mock123}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+      - PROGRAM_ID=CampVibe111111111111111111111111111111111111
+    restart: always

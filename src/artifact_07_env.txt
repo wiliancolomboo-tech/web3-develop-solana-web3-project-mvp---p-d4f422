@@ -1,0 +1,8 @@
+SOLANA_RPC_URL=https://api.devnet.solana.com
+SOLANA_WS_URL=wss://api.devnet.solana.com
+PROGRAM_ID=V1beZMWK2n5Q6qA3wY9wQvK2N5qK8L9Q6qA3wY9wQvK2
+DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+RESEND_API_KEY=re_your_verified_api_key_here
+SENDER_EMAIL=settlements@vibeprotocol.io
+ALERT_EMAIL=sponsor-notifications@university.edu
+PORT=8080

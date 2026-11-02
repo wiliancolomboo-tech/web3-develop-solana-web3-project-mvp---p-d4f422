@@ -1,0 +1,8 @@
+Why does @UniVibeProtocol win?
+
+⚡️ Sub-second SPL continuous linear streaming via Anchor PDAs
+🔒 Automated clawback circuits protecting university DAOs
+📬 Real-time enterprise alerts via @resend & Discord webhooks
+🐳 1-click self-hosted Docker agent with full test suite coverage
+
+Code is 100% open-source & ready to deploy. 🚢

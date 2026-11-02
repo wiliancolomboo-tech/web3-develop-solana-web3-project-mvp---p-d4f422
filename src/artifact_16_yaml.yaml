@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  vibestream-orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vibestream-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - SOLANA_RPC_ENDPOINT=https://api.devnet.solana.com
+      - VIBE_PROGRAM_ID=V1beStream1111111111111111111111111111111111
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SPONSOR_AUDIT_EMAIL=${SPONSOR_AUDIT_EMAIL:-grants@universitydao.edu}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  univibe-relay:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: univibe-enterprise-relay
+    restart: unless-stopped
+    environment:
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - AUDIT_EMAIL=grants-audit@vibeathon.edu
+    ports:
+      - "8080:8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

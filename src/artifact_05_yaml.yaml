@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  solana-test-validator:
+    image: solanalabs/solana:v1.18.15
+    container_name: unistream-validator
+    ports:
+      - "8899:8899"
+      - "8900:8900"
+    command: >
+      solana-test-validator
+      --reset
+      --quiet
+      --rpc-port 8899
+    healthcheck:
+      test: ["CMD", "solana", "cluster-version", "--url", "http://127.0.0.1:8899"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  telemetry-watcher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unistream-daemon
+    restart: unless-stopped
+    depends_on:
+      solana-test-validator:
+        condition: service_healthy
+    environment:
+      - SOLANA_RPC_URL=http://solana-test-validator:8899
+      - SOLANA_WS_URL=ws://solana-test-validator:8900
+      - PROGRAM_ID=UniStrm1111111111111111111111111111111111111
+      - DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+      - SLACK_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+      - RESEND_API_KEY=re_mock_test_token
+      - OPS_ALERT_EMAIL=grants@university.edu

@@ -1,0 +1,21 @@
+🧵 1/3
+Thrilled to unveil CampusVibe (@CampusVibeSol) for the @Solana University #UNI_Vibeathon! 🎓⚡
+
+Student builders wait 90+ days for university grants. We built an autonomous micro-grant & proof-of-merit escrow protocol powered by Anchor & sub-second Solana finality.
+
+Zero red tape. Real impact.
+
+🧵 2/3
+Under the hood of CampusVibe:
+🔐 Secure PDA escrow vaults locking programmatic tranches
+🤝 Mentor & faculty multi-attestation milestones
+⚡ Automated off-chain event loop triggering @resend transaction receipts & Discord webhooks in <400ms!
+
+Hackathon grants are now streaming live on-chain.
+
+🧵 3/3
+No mockups. 100% production-ready Anchor engine, full unit/integration test coverage, and turnkey Docker orchestration. 
+
+Check out the code & join the new era of autonomous student endowments:
+🔗 GitHub: https://github.com/campusvibe/solana-vibeathon
+ cc @solana @SolanaFndn #Solana #Vibeathon #DeSci #EduFi

@@ -1,0 +1,11 @@
+# Solana Network Configuration
+SOLANA_RPC_URL=https://api.devnet.solana.com
+SOLANA_WS_URL=wss://api.devnet.solana.com
+PROGRAM_ID=UniVibe1111111111111111111111111111111111111
+
+# Enterprise Dispatch Services
+RESEND_API_KEY=re_sample_key_replace_with_production
+RESEND_FROM_EMAIL=grants@univibe.institute
+TREASURY_NOTIFICATION_EMAIL=treasury@stanford.edu
+DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+SLACK_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder

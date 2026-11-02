@@ -1,0 +1,6 @@
+SOLANA_RPC_URL=https://api.devnet.solana.com
+PROGRAM_ID=VibeStr111111111111111111111111111111111111
+RESEND_API_KEY=re_123456789_abcdefghijklmnopqrstuvwxyz
+DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+DEV_ALERT_EMAIL=campus-grants@vibestream.io
+LOG_LEVEL=info

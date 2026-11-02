@@ -1,0 +1,7 @@
+Built for speed, safety, and empowering the next 10,000 university founders on Solana. 
+
+Explore our live Devnet deployment & repo:
+🔗 GitHub: github.com/vibeathon/vibestream-protocol
+🚀 Live Demo: vibestream.solana.dev
+
+Proudly submitted to #UNIVibeathon @Solana @SuperteamDAO 🟣

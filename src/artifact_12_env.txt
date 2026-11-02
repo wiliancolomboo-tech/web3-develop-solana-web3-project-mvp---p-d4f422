@@ -1,0 +1,16 @@
+# Solana RPC Endpoints
+SOLANA_RPC_URL=https://api.devnet.solana.com
+SOLANA_WS_URL=wss://api.devnet.solana.com
+
+# Deployed Program
+PROGRAM_ID=V1beEscrow1111111111111111111111111111111111
+
+# Enterprise Integration Credentials
+DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+RESEND_API_KEY=re_123456789abcdefgh
+RESEND_SENDER_EMAIL=grants@vibeprotocol.io
+DEMO_STUDENT_EMAIL=student.hacker@university.edu
+
+# Local Daemon Configuration
+PORT=8080
+LOG_LEVEL=info

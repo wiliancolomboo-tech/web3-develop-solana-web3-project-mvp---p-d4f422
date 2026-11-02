@@ -1,0 +1,9 @@
+Solana Program
+    ↓
+Finalized Transaction Stream
+    ↓
+Stateless Event Worker
+    ↓
+Idempotency Store
+    ↓
+Slack / Discord / Resend / Internal Webhooks

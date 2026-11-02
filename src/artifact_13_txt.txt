@@ -1,0 +1,7 @@
+UniVibe is production-ready, fully tested, and containerized for turnkey campus deployment.
+
+Check out our open-source repo, test matrix, and live devnet deployment now:
+🔗 github.com/univibe-solana/univibe-protocol
+
+Let's onboard the next generation of builders with instant Web3 grants! 🚀
+cc: @Solana @SolanaFndn @resend #SolanaDevs

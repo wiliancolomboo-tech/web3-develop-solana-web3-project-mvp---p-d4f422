@@ -1,267 +1,166 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { CampusFlow } from "../target/types/campus_flow";
-import { 
-  Keypair, 
-  PublicKey, 
-  SystemProgram, 
-  SYSVAR_RENT_PUBKEY 
-} from "@solana/web3.js";
-import { 
-  TOKEN_PROGRAM_ID, 
-  createMint, 
-  createAccount, 
-  mintTo, 
-  getAccount 
-} from "@solana/spl-token";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
 import { expect } from "chai";
 import * as crypto from "crypto";
 
-describe("CampusFlow End-to-End Test Suite", () => {
+describe("campus_vibe protocol test suite", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.CampusFlow as Program<CampusFlow>;
+  // We read the IDL compiled by Anchor
+  const program = anchor.workspace.CampusVibe as Program<any>;
 
-  let mint: PublicKey;
-  const sponsor = Keypair.generate();
-  const builder = Keypair.generate();
-  const peer1 = Keypair.generate();
-  const peer2 = Keypair.generate();
-  const peer3 = Keypair.generate();
+  const grantor = Keypair.generate();
+  const recipient = Keypair.generate();
+  const reviewer = Keypair.generate();
 
-  let sponsorAta: PublicKey;
-  let builderAta: PublicKey;
+  const grantId = new anchor.BN(9942);
+  const milestoneAmounts = [
+    new anchor.BN(0.5 * LAMPORTS_PER_SOL),
+    new anchor.BN(0.5 * LAMPORTS_PER_SOL),
+  ];
+  const totalBudget = 1.0 * LAMPORTS_PER_SOL;
 
-  const grantId = new anchor.BN(9001);
-  const totalBudget = new anchor.BN(10_000_000_000); // 10,000 Tokens (6 decimals)
-  const milestonePayout = new anchor.BN(2_500_000_000); // 2,500 Tokens
-
-  let grantPda: PublicKey;
+  let grantPDA: PublicKey;
+  let vaultPDA: PublicKey;
   let grantBump: number;
-  let vaultPda: PublicKey;
   let vaultBump: number;
 
-  let builderProfilePda: PublicKey;
-  let milestonePda: PublicKey;
-
   before(async () => {
-    // Airdrop SOL to actors
-    const airdropSigners = [sponsor, builder, peer1, peer2, peer3];
-    for (const signer of airdropSigners) {
-      const sig = await provider.connection.requestAirdrop(signer.publicKey, 5 * anchor.web3.LAMPORTS_PER_SOL);
-      const latestBlockhash = await provider.connection.getLatestBlockhash();
-      await provider.connection.confirmTransaction({
-        signature: sig,
-        ...latestBlockhash
-      });
-    }
-
-    // Create Grant SPL Token Mint
-    mint = await createMint(
-      provider.connection,
-      sponsor,
-      sponsor.publicKey,
-      null,
-      6
+    // Airdrop funds to Grantor and Reviewer
+    const sig1 = await provider.connection.requestAirdrop(
+      grantor.publicKey,
+      5 * LAMPORTS_PER_SOL
     );
+    const sig2 = await provider.connection.requestAirdrop(
+      reviewer.publicKey,
+      2 * LAMPORTS_PER_SOL
+    );
+    await provider.connection.confirmTransaction(sig1);
+    await provider.connection.confirmTransaction(sig2);
 
-    // Create Token Accounts
-    sponsorAta = await createAccount(provider.connection, sponsor, mint, sponsor.publicKey);
-    builderAta = await createAccount(provider.connection, builder, mint, builder.publicKey);
-
-    // Mint budget to Sponsor ATA
-    await mintTo(provider.connection, sponsor, mint, sponsorAta, sponsor, 10_000_000_000);
-
-    // Derive PDAs
-    [grantPda, grantBump] = PublicKey.findProgramAddressSync(
-      [Buffer.from("grant"), sponsor.publicKey.toBuffer(), grantId.toArrayLike(Buffer, "le", 8)],
+    [grantPDA, grantBump] = PublicKey.findProgramAddressSync(
+      [Buffer.from("grant"), grantor.publicKey.toBuffer(), grantId.toArrayLike(Buffer, "le", 8)],
       program.programId
     );
 
-    [vaultPda, vaultBump] = PublicKey.findProgramAddressSync(
-      [Buffer.from("vault"), grantPda.toBuffer()],
-      program.programId
-    );
-
-    [builderProfilePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("student"), builder.publicKey.toBuffer()],
-      program.programId
-    );
-
-    [milestonePda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("milestone"), grantPda.toBuffer(), builderProfilePda.toBuffer(), Buffer.from([0])],
+    [vaultPDA, vaultBump] = PublicKey.findProgramAddressSync(
+      [Buffer.from("vault"), grantPDA.toBuffer()],
       program.programId
     );
   });
 
-  it("1. Successfully initializes a collegiate hackathon grant vault", async () => {
-    const title = "UNI Vibeathon Grand Prize Escrow";
+  it("1. Successfully initializes a grant escrow and locks SOL into Vault PDA", async () => {
+    const title = "Autonomous Drone Fleet Research";
 
     await program.methods
-      .initializeGrant(grantId, title, totalBudget)
+      .initializeGrant(grantId, title, milestoneAmounts, reviewer.publicKey)
       .accounts({
-        sponsor: sponsor.publicKey,
-        grant: grantPda,
-        mint: mint,
-        vault: vaultPda,
-        sponsorTokenAccount: sponsorAta,
+        grantAccount: grantPDA,
+        vaultAccount: vaultPDA,
+        grantor: grantor.publicKey,
+        recipient: recipient.publicKey,
         systemProgram: SystemProgram.programId,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        rent: SYSVAR_RENT_PUBKEY,
       })
-      .signers([sponsor])
+      .signers([grantor])
       .rpc();
 
-    const grantAccount = await program.account.grant.fetch(grantPda);
-    expect(grantAccount.totalBudget.toString()).to.equal(totalBudget.toString());
-    expect(grantAccount.disbursedAmount.toString()).to.equal("0");
-    expect(grantAccount.title).to.equal(title);
+    const grantAccount = await program.account.grantAccount.fetch(grantPDA);
+    expect(grantAccount.grantId.toNumber()).to.equal(grantId.toNumber());
+    expect(grantAccount.totalBudget.toNumber()).to.equal(totalBudget);
+    expect(grantAccount.remainingBalance.toNumber()).to.equal(totalBudget);
+    expect(grantAccount.currentMilestoneIndex).to.equal(0);
+    expect(grantAccount.isActive).to.be.true;
 
-    const vaultAccount = await getAccount(provider.connection, vaultPda);
-    expect(vaultAccount.amount.toString()).to.equal(totalBudget.toString());
+    const vaultBalance = await provider.connection.getBalance(vaultPDA);
+    expect(vaultBalance).to.equal(totalBudget);
   });
 
-  it("2. Registers builder with verified academic institution hash", async () => {
-    const institutionHash = crypto.createHash("sha256").update("stanford.edu").digest();
+  it("2. Submits proof for milestone 0 by the recipient", async () => {
+    const proofHash = crypto.randomBytes(32);
 
     await program.methods
-      .registerStudent(Array.from(institutionHash))
+      .submitMilestone(grantId, Array.from(proofHash))
       .accounts({
-        student: builder.publicKey,
-        studentProfile: builderProfilePda,
-        systemProgram: SystemProgram.programId,
+        grantAccount: grantPDA,
+        recipient: recipient.publicKey,
       })
-      .signers([builder])
+      .signers([recipient])
       .rpc();
 
-    const studentRecord = await program.account.studentProfile.fetch(builderProfilePda);
-    expect(studentRecord.reputationScore).to.equal(100);
-    expect(studentRecord.vouchCount).to.equal(0);
+    const grantAccount = await program.account.grantAccount.fetch(grantPDA);
+    expect(grantAccount.milestones[0].status).to.deep.equal({ underReview: {} });
   });
 
-  it("3. Builder submits project milestone deliverable", async () => {
-    const deliverableUri = "https://github.com/vibe-builder/solana-autonomous-agent";
+  it("3. Rejects milestone approval if non-authorized party attempts verification", async () => {
+    const imposter = Keypair.generate();
+    const imposterAirdrop = await provider.connection.requestAirdrop(
+      imposter.publicKey,
+      1 * LAMPORTS_PER_SOL
+    );
+    await provider.connection.confirmTransaction(imposterAirdrop);
 
-    await program.methods
-      .submitMilestone(0, deliverableUri, milestonePayout)
-      .accounts({
-        student: builder.publicKey,
-        studentProfile: builderProfilePda,
-        grant: grantPda,
-        milestone: milestonePda,
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([builder])
-      .rpc();
-
-    const milestoneRecord = await program.account.milestone.fetch(milestonePda);
-    expect(milestoneRecord.payoutAmount.toString()).to.equal(milestonePayout.toString());
-    expect(milestoneRecord.vouchCount).to.equal(0);
-    expect(milestoneRecord.isDisbursed).to.be.false;
-  });
-
-  it("4. Prevents unauthorized release before reaching minimum peer vouches", async () => {
     try {
       await program.methods
-        .releaseMilestone(grantId)
+        .verifyAndDisburse(grantId, 0)
         .accounts({
-          sponsor: sponsor.publicKey,
-          builder: builder.publicKey,
-          builderProfile: builderProfilePda,
-          grant: grantPda,
-          milestone: milestonePda,
-          vault: vaultPda,
-          builderTokenAccount: builderAta,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        })
-        .signers([sponsor])
-        .rpc();
-      expect.fail("Release should have failed due to insufficient vouches");
-    } catch (err: any) {
-      expect(err.error.errorCode.code).to.equal("NotEnoughVouches");
-    }
-  });
-
-  it("5. Allows collegiate peers to cast Proof-of-Vibe vouches", async () => {
-    const peers = [peer1, peer2, peer3];
-    const dummyHash = crypto.createHash("sha256").update("mit.edu").digest();
-
-    for (const peer of peers) {
-      const [peerProfilePda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("student"), peer.publicKey.toBuffer()],
-        program.programId
-      );
-
-      // Register peer
-      await program.methods
-        .registerStudent(Array.from(dummyHash))
-        .accounts({
-          student: peer.publicKey,
-          studentProfile: peerProfilePda,
+          grantAccount: grantPDA,
+          vaultAccount: vaultPDA,
+          reviewer: imposter.publicKey,
+          recipient: recipient.publicKey,
           systemProgram: SystemProgram.programId,
         })
-        .signers([peer])
+        .signers([imposter])
         .rpc();
-
-      // Cast vouch
-      await program.methods
-        .castVouch()
-        .accounts({
-          voter: peer.publicKey,
-          voterProfile: peerProfilePda,
-          builderProfile: builderProfilePda,
-          milestone: milestonePda,
-        })
-        .signers([peer])
-        .rpc();
-    }
-
-    const milestoneRecord = await program.account.milestone.fetch(milestonePda);
-    expect(milestoneRecord.vouchCount).to.equal(3);
-  });
-
-  it("6. Rejects self-vouching attempts by builder", async () => {
-    try {
-      await program.methods
-        .castVouch()
-        .accounts({
-          voter: builder.publicKey,
-          voterProfile: builderProfilePda,
-          builderProfile: builderProfilePda,
-          milestone: milestonePda,
-        })
-        .signers([builder])
-        .rpc();
-      expect.fail("Self-vouch should be blocked");
+      expect.fail("Expected transaction to fail due to UnauthorizedReviewer");
     } catch (err: any) {
-      expect(err.error.errorCode.code).to.equal("SelfVouchingNotAllowed");
+      expect(err.toString()).to.include("UnauthorizedReviewer");
     }
   });
 
-  it("7. Disburses milestone tokens securely to builder token account", async () => {
-    const builderBalanceBefore = (await getAccount(provider.connection, builderAta)).amount;
+  it("4. Reviewer signs off and executes disbursement of milestone 0", async () => {
+    const recipientBalanceBefore = await provider.connection.getBalance(recipient.publicKey);
 
     await program.methods
-      .releaseMilestone(grantId)
+      .verifyAndDisburse(grantId, 0)
       .accounts({
-        sponsor: sponsor.publicKey,
-        builder: builder.publicKey,
-        builderProfile: builderProfilePda,
-        grant: grantPda,
-        milestone: milestonePda,
-        vault: vaultPda,
-        builderTokenAccount: builderAta,
-        tokenProgram: TOKEN_PROGRAM_ID,
+        grantAccount: grantPDA,
+        vaultAccount: vaultPDA,
+        reviewer: reviewer.publicKey,
+        recipient: recipient.publicKey,
+        systemProgram: SystemProgram.programId,
       })
-      .signers([sponsor])
+      .signers([reviewer])
       .rpc();
 
-    const builderBalanceAfter = (await getAccount(provider.connection, builderAta)).amount;
-    expect(BigInt(builderBalanceAfter) - BigInt(builderBalanceBefore)).to.equal(BigInt(milestonePayout.toString()));
+    const recipientBalanceAfter = await provider.connection.getBalance(recipient.publicKey);
+    expect(recipientBalanceAfter - recipientBalanceBefore).to.equal(0.5 * LAMPORTS_PER_SOL);
 
-    const milestoneRecord = await program.account.milestone.fetch(milestonePda);
-    expect(milestoneRecord.isDisbursed).to.be.true;
-    expect(milestoneRecord.isCompleted).to.be.true;
+    const grantAccount = await program.account.grantAccount.fetch(grantPDA);
+    expect(grantAccount.currentMilestoneIndex).to.equal(1);
+    expect(grantAccount.remainingBalance.toNumber()).to.equal(0.5 * LAMPORTS_PER_SOL);
+  });
+
+  it("5. Grantor can cancel inactive/abandoned remaining milestones and receive refund", async () => {
+    const grantorBalanceBefore = await provider.connection.getBalance(grantor.publicKey);
+
+    await program.methods
+      .cancelAndRefund(grantId)
+      .accounts({
+        grantAccount: grantPDA,
+        vaultAccount: vaultPDA,
+        grantor: grantor.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([grantor])
+      .rpc();
+
+    const grantAccount = await program.account.grantAccount.fetch(grantPDA);
+    expect(grantAccount.isActive).to.be.false;
+    expect(grantAccount.remainingBalance.toNumber()).to.equal(0);
+
+    const vaultBalanceAfter = await provider.connection.getBalance(vaultPDA);
+    expect(vaultBalanceAfter).to.equal(0);
   });
 });

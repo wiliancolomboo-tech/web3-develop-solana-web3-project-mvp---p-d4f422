@@ -1,0 +1,6 @@
+How VibeStream redefines campus micro-economies:
+🛡️ Dual-Vault PDAs: Zero-risk escrow locking funds until check-in
+💸 Dynamic BPS Splits: Automatic payouts to organizers + campus DAO treasuries
+⚡ Enterprise Relayers: Instant @resend email attestations + @discord webhook vibe alerts
+
+Sub-cent fees. Sub-400ms finality. Zero Web2 middlemen.

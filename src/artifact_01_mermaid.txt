@@ -1,0 +1,44 @@
+flowchart TD
+    subgraph Client & Campus Layer
+        User[Student / Donor / Sponsor]
+        Admin[University Club Lead / Organizer]
+        CLI[UniVibe CLI & Web DApp]
+    end
+
+    subgraph Solana Runtime [Solana Blockchain - Anchor Program]
+        Program[UniVibe Core Program: univibe_core]
+        ConfigPDA[("Program Config PDA\n[seed: 'config']")]
+        CampaignPDA[("Campaign PDA\n[seed: 'campaign', creator, id]")]
+        VaultPDA[("Vault Token/SOL PDA\n[seed: 'vault', campaign_pda]")]
+        Events[Program Log Events:\nCampaignCreated, DonationReceived, MilestoneReleased]
+    end
+
+    subgraph Off-Chain Enterprise Worker [UniVibe Relay Node]
+        RPC[Solana WebSocket & Geyser RPC]
+        Listener[Event Listener & Signature Auditor]
+        Metrics[Prometheus & Healthcheck Server]
+        ResendAdapter[Resend Enterprise Email Service]
+        DiscordAdapter[Discord Webhook Relay Engine]
+    end
+
+    subgraph External Consumers
+        BackerMail[Donor Email Inbox]
+        ClubDiscord[Campus Discord Channel]
+    end
+
+    User -->|1. Donate SOL / Micro-grant| CLI
+    Admin -->|0. Initialize Campaign & Milestones| CLI
+    CLI -->|Transaction with Ed25519 signature| Program
+
+    Program -->|Check invariants & state transition| CampaignPDA
+    Program -->|Lock SOL| VaultPDA
+    Program -->|Emit deterministic Anchor Events| Events
+
+    Events -->|WebSocket logsSubscribe| RPC
+    RPC -->|Parse Transaction Logs| Listener
+    Listener -->|Update telemetry| Metrics
+    Listener -->|Dispatch verified payment receipt| ResendAdapter
+    Listener -->|Dispatch formatted embed alert| DiscordAdapter
+
+    ResendAdapter -->|DKIM-signed HTML proof| BackerMail
+    DiscordAdapter -->|Real-time feed payload| ClubDiscord

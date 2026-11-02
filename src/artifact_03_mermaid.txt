@@ -1,0 +1,42 @@
+flowchart TD
+    subgraph Client_and_Sponsor_Layer [Client & Sponsor Ecosystem]
+        Sponsor[Sponsor / Grantor]
+        Builder[Student Hacker / Builder]
+        Evaluator[University Judge / Multi-Sig Signer]
+    end
+
+    subgraph Solana_Runtime [Solana On-Chain State Machine (Program Derived Addresses)]
+        Config[Protocol Config PDA]
+        BountyPDA[Bounty Escrow PDA\nseeds: [bounty, sponsor, bounty_id]]
+        VaultPDA[Vault Native/SPL Account PDA\nseeds: [vault, bounty_pda]]
+        DisputePDA[Dispute State PDA]
+    end
+
+    subgraph Enterprise_Event_Relay [Enterprise Event Relay Service (EERS)]
+        WSSubscriber[Solana WSS RPC Client\nlogsSubscribe / accountSubscribe]
+        Parser[Bounty Event Ingestion & Parser]
+        RetryQueue[Resilient In-Memory Task Queue]
+    end
+
+    subgraph External_Notification_Tier [Enterprise Notification Endpoints]
+        ResendAPI[Resend Transactional Email Engine]
+        DiscordWebhook[Campus / Hackathon Discord Alert]
+        SlackWebhook[Sponsor Enterprise Slack Channel]
+    end
+
+    %% State Transitions
+    Sponsor -->|1. initialize_bounty() + deposit SOL| BountyPDA
+    BountyPDA -->|Transfers Lamports| VaultPDA
+    Builder -->|2. submit_milestone(proof_hash)| BountyPDA
+    Evaluator -->|3. approve_milestone()| BountyPDA
+    BountyPDA -->|4. execute_payout()| Builder
+    VaultPDA -.->|Unlocks Balance| Builder
+    Evaluator -.->|Raise Conflict| DisputePDA
+
+    %% Event Pipeline
+    BountyPDA -- Emits Anchor Event --> WSSubscriber
+    WSSubscriber --> Parser
+    Parser --> RetryQueue
+    RetryQueue --> ResendAPI
+    RetryQueue --> DiscordWebhook
+    RetryQueue --> SlackWebhook

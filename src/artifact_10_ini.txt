@@ -1,0 +1,11 @@
+# Solana Network Settings
+SOLANA_RPC_URL=https://api.devnet.solana.com
+PROGRAM_ID=V1beStream1111111111111111111111111111111111
+
+# External Integration Credentials
+DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+RESEND_API_KEY=re_123456789_abcdefghijklmnopqrstuvwx
+SENDER_EMAIL=tickets@campuspulse.xyz
+
+# Logging Configuration
+LOG_LEVEL=info

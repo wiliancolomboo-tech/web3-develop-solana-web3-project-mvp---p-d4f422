@@ -1,0 +1,6 @@
+PORT=3000
+SOLANA_RPC_URL=https://api.devnet.solana.com
+PROGRAM_ID=V1BE4xS8K6V6aZkY7oXvLdDqK5T6bZ5m3mF8Zz6d8Q1
+DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+RESEND_API_KEY=re_your_api_key_here
+SPONSOR_AUDIT_EMAIL=treasury@university.edu

@@ -1,0 +1,1 @@
+solana balance <ESCROW_PDA_ADDRESS>

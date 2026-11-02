@@ -1,0 +1,6 @@
+SOLANA_RPC_URL=https://api.devnet.solana.com
+SOLANA_WS_URL=wss://api.devnet.solana.com
+PROGRAM_ID=<YOUR_DEPLOYED_PROGRAM_ID>
+DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+RESEND_API_KEY=re_your_api_key_here
+AUDIT_EMAIL_RECIPIENT=curator@vibecampus.xyz

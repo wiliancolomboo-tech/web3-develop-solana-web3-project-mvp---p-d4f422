@@ -1,0 +1,6 @@
+SOLANA_RPC_URL=https://api.devnet.solana.com
+UNIVIBE_PROGRAM_ID=UniVibe1111111111111111111111111111111111111
+RESEND_API_KEY=re_your_live_resend_api_token
+UNIVERSITY_FINANCE_EMAIL=finance@university.edu
+NOTIFICATION_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+PORT=8080

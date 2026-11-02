@@ -1,0 +1,34 @@
+import { describe, expect, it } from "vitest";
+import { hashEvidence, decodeStatus } from "./index.js";
+
+describe("evidence hashing", () => {
+  it("produces deterministic SHA-256 output", () => {
+    expect(hashEvidence("proofpulse")).toBe(
+      "f6a0b3f6a7a3dbf4df2c7c807ce5ac8a0d6dd8f6b5e0cbd9ef6e2ec3cce6d4fb"
+    );
+  });
+
+  it("changes when evidence changes", () => {
+    expect(hashEvidence("a")).not.toBe(hashEvidence("b"));
+  });
+});
+
+describe("account status decoding", () => {
+  it("rejects truncated data", () => {
+    expect(decodeStatus(Buffer.alloc(10))).toBeNull();
+  });
+
+  it("decodes Open status", () => {
+    const data = Buffer.alloc(8 + 32 + 32 + 32 + 8 + 4 + 128 + 8 + 8 + 8 + 32 + 1 + 1);
+    const offset = 8 + 32 + 32 + 32 + 8 + 4 + 128 + 8 + 8 + 8 + 32;
+    data[offset] = 0;
+    expect(decodeStatus(data)).toBe("Open");
+  });
+
+  it("decodes Approved status", () => {
+    const data = Buffer.alloc(8 + 32 + 32 + 32 + 8 + 4 + 128 + 8 + 8 + 8 + 32 + 1 + 1);
+    const offset = 8 + 32 + 32 + 32 + 8 + 4 + 128 + 8 + 8 + 8 + 32;
+    data[offset] = 2;
+    expect(decodeStatus(data)).toBe("Approved");
+  });
+});

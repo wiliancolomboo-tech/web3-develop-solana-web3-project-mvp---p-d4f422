@@ -1,0 +1,9 @@
+{
+  "status": "healthy",
+  "service": "univibe-daemon",
+  "network": "solana-devnet",
+  "program_id": "UniVibe1111111111111111111111111111111111111",
+  "slot_lag": 0,
+  "resend_connected": true,
+  "discord_webhook_ready": true
+}

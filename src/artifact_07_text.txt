@@ -1,0 +1,1 @@
+SHA256(downloaded_artifact) === milestone.proof_hash

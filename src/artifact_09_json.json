@@ -1,0 +1,9 @@
+{
+  "status": "HEALTHY",
+  "uptime_seconds": 86420,
+  "solana_slot_height": 298104921,
+  "active_subscriptions": 1,
+  "events_processed_total": 1420,
+  "resend_dispatch_success_rate": 0.998,
+  "discord_dispatch_success_rate": 1.000
+}

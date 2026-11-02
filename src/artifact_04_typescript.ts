@@ -1,139 +1,207 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program, Wallet } from "@coral-xyz/anchor";
-import { 
-  Connection, 
-  Keypair, 
-  PublicKey, 
-  SystemProgram, 
-  SYSVAR_RENT_PUBKEY, 
-  clusterApiUrl 
-} from "@solana/web3.js";
-import { 
-  TOKEN_PROGRAM_ID, 
-  createMint, 
-  getOrCreateAssociatedTokenAccount, 
-  mintTo 
-} from "@solana/spl-token";
-import axios from "axios";
-import { Resend } from "resend";
-import * as crypto from "crypto";
+import { Program } from "@coral-xyz/anchor";
+import { UnivibeCore } from "../target/types/univibe_core";
+import { PublicKey, Keypair, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { expect } from "chai";
 
-// Environment Configuration
-const RESEND_API_KEY = process.env.RESEND_API_KEY || "re_test_mock_123456789";
-const NOTIFICATION_WEBHOOK_URL = process.env.DISCORD_SLACK_WEBHOOK || "https://httpbin.org/post";
-const RPC_ENDPOINT = process.env.SOLANA_RPC_URL || clusterApiUrl("devnet");
+describe("univibe_core protocol test suite", () => {
+  const provider = anchor.AnchorProvider.env();
+  anchor.setProvider(provider);
 
-const resend = new Resend(RESEND_API_KEY);
+  const program = anchor.workspace.UnivibeCore as Program<UnivibeCore>;
 
-export class CampusFlowClient {
-  private connection: Connection;
-  private wallet: Wallet;
-  private programId: PublicKey;
+  const admin = Keypair.generate();
+  const treasury = Keypair.generate();
+  const creator = Keypair.generate();
+  const donor = Keypair.generate();
+  const campaignId = new anchor.BN(42);
 
-  constructor(keypair: Keypair, programIdStr: string) {
-    this.connection = new Connection(RPC_ENDPOINT, "confirmed");
-    this.wallet = new Wallet(keypair);
-    this.programId = new PublicKey(programIdStr);
-  }
+  let configPda: PublicKey;
+  let campaignPda: PublicKey;
+  let vaultPda: PublicKey;
 
-  /**
-   * Derives Grant PDA address
-   */
-  public getGrantPDA(sponsor: PublicKey, grantId: anchor.BN): [PublicKey, number] {
-    return PublicKey.findProgramAddressSync(
-      [Buffer.from("grant"), sponsor.toBuffer(), grantId.toArrayLike(Buffer, "le", 8)],
-      this.programId
-    );
-  }
-
-  /**
-   * Derives Escrow Vault PDA address
-   */
-  public getVaultPDA(grantPda: PublicKey): [PublicKey, number] {
-    return PublicKey.findProgramAddressSync(
-      [Buffer.from("vault"), grantPda.toBuffer()],
-      this.programId
-    );
-  }
-
-  /**
-   * Derives Student Profile PDA address
-   */
-  public getStudentPDA(student: PublicKey): [PublicKey, number] {
-    return PublicKey.findProgramAddressSync(
-      [Buffer.from("student"), student.toBuffer()],
-      this.programId
-    );
-  }
-
-  /**
-   * Derives Milestone PDA address
-   */
-  public getMilestonePDA(grantPda: PublicKey, studentProfilePda: PublicKey, index: number): [PublicKey, number] {
-    return PublicKey.findProgramAddressSync(
-      [Buffer.from("milestone"), grantPda.toBuffer(), studentProfilePda.toBuffer(), Buffer.from([index])],
-      this.programId
-    );
-  }
-
-  /**
-   * Dispatches Enterprise Alerts via Webhook and Resend Email
-   */
-  public async dispatchEnterpriseAlerts(params: {
-    event: string;
-    studentEmail: string;
-    builder: string;
-    amount: string;
-    txHash: string;
-  }) {
-    console.log(`[Enterprise Notification Engine] Dispatching alert: ${params.event}`);
-
-    // 1. Dispatch Webhook to Slack / Discord
-    try {
-      await axios.post(NOTIFICATION_WEBHOOK_URL, {
-        content: `🚨 **CampusFlow Protocol Update**: Milestone Approved!`,
-        embeds: [{
-          title: `Payout Disbursed: ${params.amount} tokens`,
-          color: 0x14F195, // Solana Green
-          fields: [
-            { name: "Recipient", value: `\`${params.builder}\``, inline: true },
-            { name: "Tx Signature", value: `\`${params.txHash.slice(0, 16)}...\``, inline: true },
-            { name: "Timestamp", value: new Date().toISOString(), inline: false }
-          ]
-        }]
+  before(async () => {
+    // Airdrop SOL to test actors
+    const airdropSigners = [admin, creator, donor];
+    for (const actor of airdropSigners) {
+      const tx = await provider.connection.requestAirdrop(actor.publicKey, 10 * LAMPORTS_PER_SOL);
+      const latestBlockhash = await provider.connection.getLatestBlockhash();
+      await provider.connection.confirmTransaction({
+        signature: tx,
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
       });
-      console.log("✅ Webhook payload delivered successfully.");
-    } catch (err: any) {
-      console.warn("⚠️ Webhook delivery skipped or returned error:", err.message);
     }
 
-    // 2. Dispatch Formal Confirmation Email via Resend
+    [configPda] = PublicKey.findProgramAddressSync([Buffer.from("config")], program.programId);
+
+    [campaignPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("campaign"), creator.publicKey.toBuffer(), campaignId.toArrayLike(Buffer, "le", 8)],
+      program.programId
+    );
+
+    [vaultPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("vault"), creator.publicKey.toBuffer(), campaignId.toArrayLike(Buffer, "le", 8)],
+      program.programId
+    );
+  });
+
+  it("1. Initializes global protocol configuration with 1% fee (100 bps)", async () => {
+    const feeBps = 100; // 1%
+    await program.methods
+      .initializeProtocol(feeBps)
+      .accounts({
+        config: configPda,
+        admin: admin.publicKey,
+        treasury: treasury.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([admin])
+      .rpc();
+
+    const configAccount = await program.account.protocolConfig.fetch(configPda);
+    expect(configAccount.admin.toBase58()).to.equal(admin.publicKey.toBase58());
+    expect(configAccount.treasury.toBase58()).to.equal(treasury.publicKey.toBase58());
+    expect(configAccount.feeBasisPoints).to.equal(feeBps);
+    expect(configAccount.totalCampaigns.toNumber()).to.equal(0);
+  });
+
+  it("2. Rejects campaign creation when milestone percentages do not sum to 100", async () => {
+    const invalidMilestones = Buffer.from([50, 40]); // Sum = 90
     try {
-      if (RESEND_API_KEY && !RESEND_API_KEY.includes("mock")) {
-        await resend.emails.send({
-          from: "grants@campusflow.io",
-          to: params.studentEmail,
-          subject: "🎉 Grant Milestone Approved - Funds Disbursed",
-          html: `
-            <h2>Congratulations Builder!</h2>
-            <p>Your milestone deliverable has met all proof-of-vibe validation checks.</p>
-            <p><strong>Disbursed Amount:</strong> ${params.amount}</p>
-            <p><strong>Solana Transaction:</strong> <code>${params.txHash}</code></p>
-            <p>Keep building collegiate excellence with CampusFlow!</p>
-          `,
-        });
-        console.log(`✅ Resend email notification queued to: ${params.studentEmail}`);
-      }
+      await program.methods
+        .createCampaign(
+          campaignId,
+          "Campus Autonomous Rover",
+          "Student robotics lab milestone grant",
+          new anchor.BN(5 * LAMPORTS_PER_SOL),
+          invalidMilestones
+        )
+        .accounts({
+          campaign: campaignPda,
+          vault: vaultPda,
+          config: configPda,
+          creator: creator.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([creator])
+        .rpc();
+      expect.fail("Should have failed with MilestonesMustSumTo100");
     } catch (err: any) {
-      console.warn("⚠️ Resend API email delivery skipped:", err.message);
+      expect(err.error.errorCode.code).to.equal("MilestonesMustSumTo100");
     }
-  }
+  });
 
-  /**
-   * Generates deterministic collegiate institution hash from verified academic email
-   */
-  public static hashAcademicDomain(email: string): Buffer {
-    const domain = email.split("@")[1].toLowerCase();
-    return crypto.createHash("sha256").update(domain).digest();
-  }
-}
+  it("3. Successfully creates a campaign with 3 milestone gates (40%, 30%, 30%)", async () => {
+    const validMilestones = Buffer.from([40, 30, 30]); // Sum = 100
+    await program.methods
+      .createCampaign(
+        campaignId,
+        "Campus Autonomous Rover",
+        "Student robotics lab milestone grant",
+        new anchor.BN(5 * LAMPORTS_PER_SOL),
+        validMilestones
+      )
+      .accounts({
+        campaign: campaignPda,
+        vault: vaultPda,
+        config: configPda,
+        creator: creator.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([creator])
+      .rpc();
+
+    const campaignAccount = await program.account.campaignAccount.fetch(campaignPda);
+    expect(campaignAccount.name).to.equal("Campus Autonomous Rover");
+    expect(campaignAccount.targetAmount.toNumber()).to.equal(5 * LAMPORTS_PER_SOL);
+    expect(campaignAccount.collectedAmount.toNumber()).to.equal(0);
+    expect(campaignAccount.currentMilestone).to.equal(0);
+    expect(campaignAccount.isCompleted).to.be.false;
+
+    const configAccount = await program.account.protocolConfig.fetch(configPda);
+    expect(configAccount.totalCampaigns.toNumber()).to.equal(1);
+  });
+
+  it("4. Accepts donor contributions and accurately updates campaign PDA state", async () => {
+    const donationAmount = new anchor.BN(2 * LAMPORTS_PER_SOL);
+
+    const vaultBalanceBefore = await provider.connection.getBalance(vaultPda);
+
+    await program.methods
+      .donate(donationAmount)
+      .accounts({
+        campaign: campaignPda,
+        vault: vaultPda,
+        donor: donor.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([donor])
+      .rpc();
+
+    const vaultBalanceAfter = await provider.connection.getBalance(vaultPda);
+    expect(vaultBalanceAfter - vaultBalanceBefore).to.equal(donationAmount.toNumber());
+
+    const campaignAccount = await program.account.campaignAccount.fetch(campaignPda);
+    expect(campaignAccount.collectedAmount.toNumber()).to.equal(donationAmount.toNumber());
+  });
+
+  it("5. Prevents unauthorized non-creators from releasing milestone funds", async () => {
+    const impostor = Keypair.generate();
+    await provider.connection.requestAirdrop(impostor.publicKey, LAMPORTS_PER_SOL);
+
+    try {
+      await program.methods
+        .releaseMilestone()
+        .accounts({
+          campaign: campaignPda,
+          vault: vaultPda,
+          config: configPda,
+          creator: impostor.publicKey, // Unauthorized!
+          treasury: treasury.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([impostor])
+        .rpc();
+      expect.fail("Should have thrown UnauthorizedCreator error");
+    } catch (err: any) {
+      expect(err.error.errorCode.code).to.equal("UnauthorizedCreator");
+    }
+  });
+
+  it("6. Creator successfully releases Milestone 0: verifies net payout & treasury fee deductions", async () => {
+    const creatorBalBefore = await provider.connection.getBalance(creator.publicKey);
+    const treasuryBalBefore = await provider.connection.getBalance(treasury.publicKey);
+
+    // Milestone 0 is 40% of 2 SOL = 0.8 SOL.
+    // Fee is 1% of 0.8 SOL = 0.008 SOL.
+    // Net payout to creator = 0.792 SOL.
+    await program.methods
+      .releaseMilestone()
+      .accounts({
+        campaign: campaignPda,
+        vault: vaultPda,
+        config: configPda,
+        creator: creator.publicKey,
+        treasury: treasury.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([creator])
+      .rpc();
+
+    const creatorBalAfter = await provider.connection.getBalance(creator.publicKey);
+    const treasuryBalAfter = await provider.connection.getBalance(treasury.publicKey);
+
+    const expectedGross = (2 * LAMPORTS_PER_SOL * 40) / 100;
+    const expectedFee = (expectedGross * 100) / 10000;
+    const expectedNet = expectedGross - expectedFee;
+
+    expect(treasuryBalAfter - treasuryBalBefore).to.equal(expectedFee);
+    // Allow slight tolerance for transaction fee paid by creator
+    expect(creatorBalAfter - creatorBalBefore).to.be.closeTo(expectedNet, 5000000);
+
+    const campaignAccount = await program.account.campaignAccount.fetch(campaignPda);
+    expect(campaignAccount.currentMilestone).to.equal(1);
+    expect(campaignAccount.withdrawnAmount.toNumber()).to.equal(expectedGross);
+  });
+});

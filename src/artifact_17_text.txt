@@ -1,0 +1,9 @@
+Campus builders vibe, build, and ship—VibeStream handles the proof-of-work payouts seamlessly.
+
+Open source, 100% test passing, turnkey Docker ready.
+Empowering the next generation of @Solana university talent. 🎓💻
+
+GitHub: github.com/vibestream/vibestream-core
+Live Devnet MVP: vibestream.dev
+
+#Solana #Bounty #Web3Dev #UNIVibeathon

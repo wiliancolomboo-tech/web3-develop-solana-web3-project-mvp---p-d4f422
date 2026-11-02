@@ -1,0 +1,6 @@
+We’re turning campus dev collectives into high-speed autonomous builders with production-grade Solana infrastructure.
+
+💻 Live Devnet Contract: V1beGrant111...
+📂 GitHub MVP + Turnkey Docker: github.com/unistream/unistream-core
+
+Let’s bring continuous capital to every student hacker! @SolanaFndn @solana #Solana #UNIVibeathon

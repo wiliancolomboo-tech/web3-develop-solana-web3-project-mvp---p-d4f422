@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  vibestream-relayer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vibestream_relayer
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - PROGRAM_ID=V1beStream1111111111111111111111111111111111
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SENDER_EMAIL=verify@campuspulse.xyz
+      - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    ports:
+      - "8080:8080"

@@ -1,0 +1,21 @@
+[toolchain]
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.localnet]
+univibe = "uVibeCR75Uj241wW49E1rR98uD5g4nEkYv3aM6p4Wz9"
+
+[programs.devnet]
+univibe = "uVibeCR75Uj241wW49E1rR98uD5g4nEkYv3aM6p4Wz9"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "Devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "yarn run mocha -t 1000000 tests/"

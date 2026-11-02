@@ -1,0 +1,6 @@
+Live and deployed on Solana Devnet with a 100% passing Anchor test suite & turnkey Docker relayer! 🧪✨
+
+Check out our open-source repo, test the CLI, and bring deterministic vibe-checks to your campus:
+🔗 github.com/solana-vibestream/campus-pulse
+
+Built with ❤️ for #Solana #UNIVibeathon @SolanaFndn @SuperteamDAO

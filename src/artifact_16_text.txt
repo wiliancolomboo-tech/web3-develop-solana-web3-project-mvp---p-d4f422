@@ -1,0 +1,7 @@
+Under the hood of VibeStream:
+🛡️ Anchor 0.30+ PDA-locked vaults (0% custodial risk)
+⚖️ M-of-N Cryptographic judging quorums
+⚡ Sub-second payout settlement directly to student wallets
+📬 Instant event pipelines via @resend & Discord Webhooks
+
+No manual spreadsheets. Pure verifiable on-chain governance.

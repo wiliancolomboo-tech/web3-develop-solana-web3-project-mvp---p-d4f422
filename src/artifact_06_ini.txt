@@ -1,0 +1,6 @@
+SOLANA_RPC_ENDPOINT=https://api.devnet.solana.com
+PROGRAM_ID=UniVibe1111111111111111111111111111111111111
+DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+RESEND_API_KEY=re_123456789_abcdefghijklmnopqrstuvwxyz
+NOTIFICATION_EMAIL=vibes@universitydao.edu
+PORT=8080

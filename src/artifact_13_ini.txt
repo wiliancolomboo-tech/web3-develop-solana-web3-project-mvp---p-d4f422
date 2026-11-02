@@ -1,0 +1,10 @@
+# Solana Network Configuration
+SOLANA_RPC_URL="https://api.devnet.solana.com"
+SOLANA_WS_URL="wss://api.devnet.solana.com"
+CAMPUSVIBE_PROGRAM_ID="CampVib111111111111111111111111111111111111"
+
+# Enterprise Notification Credentials
+RESEND_API_KEY="re_123456789_enterprise_prod_key"
+NOTIFICATION_EMAIL_TO="treasury@campusvibe.io"
+NOTIFICATION_EMAIL_FROM="notifications@campusvibe.io"
+DISCORD_WEBHOOK_URL="https://api.example.com/webhooks/alerts/placeholder"

@@ -1,0 +1,115 @@
+import * as anchor from "@coral-xyz/anchor";
+import { expect } from "chai";
+
+describe("proof_relay", () => {
+  const provider = anchor.AnchorProvider.env();
+  anchor.setProvider(provider);
+
+  const program = anchor.workspace.ProofRelay;
+  const owner = provider.wallet;
+  const reviewer = anchor.web3.Keypair.generate();
+
+  const projectId = new anchor.BN(Date.now());
+  let project: anchor.web3.PublicKey;
+  let milestone: anchor.web3.PublicKey;
+
+  it("creates a project", async () => {
+    [project] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("project"),
+        owner.publicKey.toBuffer(),
+        projectId.toArrayLike(Buffer, "le", 8)
+      ],
+      program.programId
+    );
+
+    await program.methods
+      .createProject(projectId, "Test Project", "https://example.com/project")
+      .accounts({
+        owner: owner.publicKey,
+        reviewer: reviewer.publicKey,
+        project,
+        systemProgram: anchor.web3.SystemProgram.programId
+      })
+      .rpc();
+
+    const account = await program.account.project.fetch(project);
+    expect(account.owner.toBase58()).equals(owner.publicKey.toBase58());
+    expect(account.milestoneCount).equals(0);
+  });
+
+  it("creates a milestone", async () => {
+    [milestone] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("milestone"),
+        project.toBuffer(),
+        Buffer.from(new Uint32Array([0]).buffer)
+      ],
+      program.programId
+    );
+
+    await program.methods
+      .createMilestone(
+        0,
+        "First milestone",
+        new anchor.BN(Math.floor(Date.now() / 1000) + 3600)
+      )
+      .accounts({
+        project,
+        owner: owner.publicKey,
+        milestone,
+        systemProgram: anchor.web3.SystemProgram.programId
+      })
+      .rpc();
+
+    const account = await program.account.milestone.fetch(milestone);
+    expect(account.title).equals("First milestone");
+  });
+
+  it("submits a non-zero proof", async () => {
+    const proof = Array.from({ length: 32 }, (_, i) => i + 1);
+
+    await program.methods
+      .submitMilestone(proof, "ipfs://artifact")
+      .accounts({
+        milestone,
+        submitter: owner.publicKey
+      })
+      .rpc();
+
+    const account = await program.account.milestone.fetch(milestone);
+    expect(account.proofUri).equals("ipfs://artifact");
+  });
+
+  it("rejects unauthorized review", async () => {
+    try {
+      await program.methods
+        .approveMilestone()
+        .accounts({
+          milestone,
+          project,
+          reviewer: owner.publicKey
+        })
+        .rpc();
+
+      expect.fail("expected unauthorized reviewer error");
+    } catch (error) {
+      expect(String(error)).contains("UnauthorizedReviewer");
+    }
+  });
+
+  it("allows authorized approval", async () => {
+    await program.methods
+      .approveMilestone()
+      .accounts({
+        milestone,
+        project,
+        reviewer: reviewer.publicKey
+      })
+      .signers([reviewer])
+      .rpc();
+
+    const account = await program.account.milestone.fetch(milestone);
+    expect(account.status.approved).not.undefined;
+  });
+});

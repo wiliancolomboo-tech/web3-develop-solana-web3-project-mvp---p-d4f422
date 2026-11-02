@@ -1,18 +1,20 @@
 version: '3.8'
 
 services:
-  campusflow-engine:
+  campusvibe-relayer:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: campusvibe_relayer_prod
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
+      - NODE_ENV=production
       - SOLANA_RPC_URL=https://api.devnet.solana.com
-      - RESEND_API_KEY=re_live_enterprise_grant_key
-      - DISCORD_SLACK_WEBHOOK=https://discord.com/api/webhooks/your-id/your-token
-      - PROGRAM_ID=CampFlow11111111111111111111111111111111111
+      - PROGRAM_ID=CampVibe11111111111111111111111111111111111
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
     logging:
       driver: "json-file"
       options:

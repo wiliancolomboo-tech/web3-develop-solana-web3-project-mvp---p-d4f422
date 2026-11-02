@@ -1,0 +1,7 @@
+How CampusVibe powers student builders:
+1️⃣ Sponsors lock grants in deterministic Anchor PDA Vaults
+2️⃣ Builders deliver verifiable milestones on-chain
+3️⃣ Judges release proportional SOL instantly on completion
+4️⃣ Dual-channel webhooks stream updates to Discord & @resend receipts 📧
+
+Pure open-source composability.

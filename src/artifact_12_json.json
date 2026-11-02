@@ -1,0 +1,7 @@
+{
+     "status": "healthy",
+     "network": "devnet",
+     "latest_slot": 298410292,
+     "active_escrows": 14,
+     "total_disbursed_sol": 32.5
+   }

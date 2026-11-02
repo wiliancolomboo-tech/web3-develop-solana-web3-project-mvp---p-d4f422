@@ -1,0 +1,17 @@
+flowchart LR
+    W[ProofPulse Worker]
+    S[Solana RPC]
+    P[ProofPulse Program]
+    D[(PostgreSQL / SQLite)]
+    SL[Slack Incoming Webhook]
+    DC[Discord Webhook]
+    RE[Resend Email API]
+    WH[Enterprise Webhook]
+
+    P --> S
+    S --> W
+    W --> D
+    W --> SL
+    W --> DC
+    W --> RE
+    W --> WH

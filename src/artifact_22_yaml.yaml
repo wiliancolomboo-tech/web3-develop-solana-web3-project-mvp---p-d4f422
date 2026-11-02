@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  univibe-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: univibe-indexer-daemon
+    restart: always
+    environment:
+      - PORT=9090
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.devnet.solana.com}
+      - SOLANA_WSS_URL=${SOLANA_WSS_URL:-wss://api.devnet.solana.com}
+      - PROGRAM_ID=${PROGRAM_ID:-UniVibe1111111111111111111111111111111111111}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - CAMPUS_ADMIN_EMAIL=${CAMPUS_ADMIN_EMAIL:-grants@university.edu}
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

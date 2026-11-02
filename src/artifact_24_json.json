@@ -1,0 +1,9 @@
+{
+  "status": "HEALTHY",
+  "uptime_seconds": 84210,
+  "solana_rpc": "https://api.devnet.solana.com",
+  "program_id": "V1beStream1111111111111111111111111111111111",
+  "active_subscriptions": 1,
+  "resend_pipeline": "ONLINE",
+  "discord_webhook": "ONLINE"
+}

@@ -1,0 +1,22 @@
+🧵 1/3
+Thrilled to unveil @VibeProtocol for the @UNI_Vibeathon on @Solana! 🎓⚡️
+
+Campus micro-grants & hackathon pools are stuck in archaic 5-day bank wires & opaque spreadsheets. 
+
+We built the institutional-grade Quadratic Vibe-Staking & Automated Milestone Escrow engine on Solana! 🚀
+
+🧵 2/3
+Under the hood of VibeProtocol:
+🔒 Zero-loss deterministic PDA Vaults
+⚖️ On-chain Quadratic Matching: W = ⌊√lamports⌋ to eliminate whale dominance
+⚡️ <400ms atomic milestone tranches with cryptographic SHA-256 proof submissions
+🔔 Enterprise telemetry wired to Discord & Slack!
+
+🧵 3/3
+Complete test suite passing with 100% assertions, turnkey Docker runtime, & live devnet deployment!
+
+Empowering student founders & DAOs with transparent, autonomous grant custody.
+
+Check out our submission repo & test on Solana! 🌐👇
+github.com/vibe-campus/vibe-protocol
+#Solana #UNIVibeathon #Web3Campus #BUIDL

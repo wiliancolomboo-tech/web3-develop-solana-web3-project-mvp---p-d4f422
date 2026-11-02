@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  vibestream-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vibestream_daemon_core
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - SOLANA_WS_URL=wss://api.devnet.solana.com
+      - PROGRAM_ID=V1beStream111111111111111111111111111111111
+      - KEYPAIR_PATH=/app/keys/payer-keypair.json
+      - RESEND_API_KEY=${RESEND_API_KEY:-re_demo_only}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+      - ALERT_EMAIL_TO=grants@vibestream.finance
+      - HEALTH_PORT=8080
+    volumes:
+      - ./keys:/app/keys
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

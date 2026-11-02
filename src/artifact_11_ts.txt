@@ -1,0 +1,123 @@
+import express from "express";
+import { Connection, PublicKey, Logs } from "@solana/web3.js";
+
+const RPC_URL = process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com";
+const WS_URL = process.env.SOLANA_WS_URL;
+const PROGRAM_ID = new PublicKey(process.env.PROGRAM_ID!);
+const PORT = Number(process.env.PORT ?? 8080);
+
+const app = express();
+let lastEventAt = 0;
+const processed = new Set<string>();
+
+type Notification = {
+  event: string;
+  signature: string;
+  slot: number;
+  logs: string[];
+};
+
+async function sendWebhook(url: string | undefined, payload: unknown) {
+  if (!url) return;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) {
+    throw new Error(`Webhook failed: ${response.status}`);
+  }
+}
+
+async function sendResend(payload: Notification) {
+  const key = process.env.RESEND_API_KEY;
+  const recipient = process.env.NOTIFY_EMAIL;
+  if (!key || !recipient) return;
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${key}`,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      from: process.env.RESEND_FROM ?? "ProofRelay <onboarding@resend.dev>",
+      to: [recipient],
+      subject: `ProofRelay: ${payload.event}`,
+      text: JSON.stringify(payload, null, 2)
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Resend failed: ${response.status}`);
+  }
+}
+
+async function notify(payload: Notification) {
+  const idempotencyKey = `${PROGRAM_ID.toBase58()}:${payload.signature}:${payload.event}`;
+  if (processed.has(idempotencyKey)) return;
+
+  const message = {
+    ...payload,
+    idempotencyKey,
+    explorer: `https://explorer.solana.com/tx/${payload.signature}?cluster=devnet`
+  };
+
+  await Promise.all([
+    sendWebhook(process.env.SLACK_WEBHOOK_URL, { text: JSON.stringify(message) }),
+    sendWebhook(process.env.DISCORD_WEBHOOK_URL, { content: JSON.stringify(message) }),
+    sendResend(payload)
+  ]);
+
+  processed.add(idempotencyKey);
+  lastEventAt = Date.now();
+}
+
+function classify(logs: string[]): string | null {
+  const joined = logs.join("\n");
+  if (joined.includes("MilestoneSubmitted")) return "MilestoneSubmitted";
+  if (joined.includes("MilestoneApproved")) return "MilestoneApproved";
+  if (joined.includes("MilestoneRejected")) return "MilestoneRejected";
+  if (joined.includes("ProjectCreated")) return "ProjectCreated";
+  if (joined.includes("MilestoneCreated")) return "MilestoneCreated";
+  return null;
+}
+
+const connection = new Connection(RPC_URL, {
+  commitment: "confirmed",
+  wsEndpoint: WS_URL
+});
+
+connection.onLogs(PROGRAM_ID, async (logs: Logs, context) => {
+  const event = classify(logs.logs);
+  if (!event || logs.err) return;
+
+  try {
+    await notify({
+      event,
+      signature: logs.signature,
+      slot: context.slot,
+      logs: logs.logs
+    });
+  } catch (error) {
+    console.error("notification error", error);
+  }
+});
+
+app.get("/healthz", (_req, res) => {
+  res.json({
+    ok: true,
+    programId: PROGRAM_ID.toBase58(),
+    rpc: RPC_URL,
+    processedEvents: processed.size
+  });
+});
+
+app.get("/readyz", (_req, res) => {
+  const healthy = lastEventAt === 0 || Date.now() - lastEventAt < 15 * 60_000;
+  res.status(healthy ? 200 : 503).json({ ready: healthy, lastEventAt });
+});
+
+app.listen(PORT, () => {
+  console.log(`ProofRelay worker listening on ${PORT}`);
+});

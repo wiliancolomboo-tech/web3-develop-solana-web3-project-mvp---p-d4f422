@@ -1,0 +1,21 @@
+🧵 1/3
+Thrilled to introduce @SolVibeProtocol for the @Solana UNI Vibeathon! 🎓⚡️
+
+University clubs manage $10Ks in funding using broken Web2 bank accounts and messy spreadsheets.
+We built the first non-custodial milestone treasury engine on Solana for collegiate developer communities.
+
+Here's how it works 👇
+
+🧵 2/3
+SolVibe unlocks:
+🔒 Milestone-gated PDA escrows: student teams get paid automatically upon verified deliverables.
+⚡️ Instant, near-zero cost disbursements with sub-second Solana finality.
+📬 Enterprise integration layer: triggers real-time Discord/Slack alerts & @Resend audit receipts to faculty advisors!
+
+🧵 3/3
+No single point of failure. Zero rogue custody. 100% transparency.
+Built with Anchor, TypeScript, and Docker-ready for any collegiate DAO or student club.
+
+Check out the live devnet contract & open-source repo:
+🔗 GitHub: https://github.com/solvibe/solvibe-core
+⚡️ Powered by @Solana & ready for university adoption! #Solana #UNIVibeathon #BUIDL

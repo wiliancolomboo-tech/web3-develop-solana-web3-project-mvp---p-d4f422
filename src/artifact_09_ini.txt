@@ -1,0 +1,10 @@
+# Solana Cluster RPC
+SOLANA_RPC_URL="https://api.devnet.solana.com"
+PROGRAM_ID="VibeVaU1t1111111111111111111111111111111111"
+
+# Resend Transactional Mail Dispatcher
+RESEND_API_KEY="re_abc123xyz"
+NOTIFICATION_TARGET_EMAIL="grants-committee@university.edu"
+
+# Discord Community Telemetry Feed
+DISCORD_WEBHOOK_URL="https://api.example.com/webhooks/alerts/placeholder"

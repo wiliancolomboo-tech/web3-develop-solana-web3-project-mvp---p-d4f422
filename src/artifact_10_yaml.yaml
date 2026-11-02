@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  univibe-daemon:
+    build:
+      context: ./daemon
+      dockerfile: Dockerfile
+    container_name: univibe_daemon_prod
+    restart: always
+    environment:
+      - PORT=8080
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - PROGRAM_ID=UniVibe1111111111111111111111111111111111111
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - RECIPIENT_TEST_EMAIL=builder@university.edu
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"

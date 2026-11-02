@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  unistream-relayer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unistream-enterprise-relayer
+    restart: always
+    environment:
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - PROGRAM_ID=UniStrm1111111111111111111111111111111111111
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - ADMIN_NOTIFICATION_EMAIL=grants-board@university.edu
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

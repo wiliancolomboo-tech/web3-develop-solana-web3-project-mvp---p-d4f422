@@ -1,0 +1,8 @@
+🌐 100% open source & turnkey ready for university DAOs worldwide:
+• Full Anchor test suite with 100% assertion coverage
+• Dockerized keeper daemon with automated email/webhook audit trails
+
+Check the code & testnet live demo 🚀
+🔗 https://github.com/vibestream-protocol/vibestream-core
+
+#Solana #UNIVibeathon #BuildOnSolana #Web3Campus

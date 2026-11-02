@@ -1,0 +1,11 @@
+# Network Endpoints
+SOLANA_RPC_HTTP_URL=https://api.devnet.solana.com
+SOLANA_RPC_WS_URL=wss://api.devnet.solana.com
+
+# Program Addresses
+VIBE_PROGRAM_ID=V1beT8kZ9P3pMw4k9a9bF2nE1vJ6mQ8rY7xW4uD3tL1
+
+# Enterprise Telemetry Integrations
+DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
+RESEND_API_KEY=re_123456789_abcdefghijklmnopqrstuvwxyz
+ALERT_EMAIL_RECIPIENT=dean@university.edu

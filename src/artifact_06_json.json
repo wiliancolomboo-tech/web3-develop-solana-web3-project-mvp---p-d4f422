@@ -1,0 +1,19 @@
+{
+  "name": "vibestream-enterprise-daemon",
+  "version": "1.0.0",
+  "description": "Production indexing and telemetry agent for VibeStream",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/web3.js": "^1.95.3",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5"
+  }
+}

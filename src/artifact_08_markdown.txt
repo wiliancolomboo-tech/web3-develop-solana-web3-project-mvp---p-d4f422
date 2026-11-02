@@ -1,0 +1,9 @@
+🧵 1/3: Collegiate grants and hackathon prize distributions are fundamentally broken—taking up to 90 days of slow paperwork while builder momentum drops off a cliff. 
+
+Today we're unveiling @CampusVibe for the @Solana UNI Vibeathon: Decentralized, milestone-escrowed micro-endowments powered by Solana sub-second execution! ⚡🎓
+
+🧵 2/3: Built on Anchor 0.30, CampusVibe locks grant commitments in trustless PDA vaults. Student teams verify academic (.edu) status with magic-link proofs via @resend, submit milestone code deliverables on-chain, and unlock tranches instantly upon reviewer attestation. No delays. Zero bureaucracy. 🛡️💻
+
+🧵 3/3: Complete end-to-end MVP is live on Devnet! Includes a containerized background daemon syncing state with campus Discord/Slack channels and a 100% passing QA test matrix. 
+
+Check out the code, launch with Docker in 60s, and fund the next generation of builders: https://github.com/campusvibe/campusvibe-core 🚀🌐 #Solana #UNIVibeathon #Web3

@@ -1,0 +1,7 @@
+Live on Solana Devnet today! Built with Anchor 0.30, 100% test coverage, and turnkey Docker deployment.
+
+Let's accelerate campus builders with instant, trustless micro-treasuries.
+
+Check out the repo & run the demo: https://github.com/campusvibe/campusvibe-core
+
+#Solana #UNIVibeathon #Web3Campus #OnlyPossibleOnSolana

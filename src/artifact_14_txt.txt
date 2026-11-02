@@ -1,0 +1,5 @@
+Built for the UNI Vibeathon:
+🔹 PDA-governed sub-treasuries with sub-second linear stream unlocks
+🔹 Zero-knowledge cryptographic .edu domain proofs
+🔹 Real-time enterprise alerts via @resend & Discord webhooks
+🔹 100% Rust Anchor 0.30 test coverage & turnkey Docker ops 🦀📦

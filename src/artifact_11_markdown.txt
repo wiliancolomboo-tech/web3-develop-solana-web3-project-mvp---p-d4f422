@@ -1,0 +1,5 @@
+🚀 Built for the @Solana University Vibeathon: Introducing VibeStream (CampusPulse)!
+
+Say goodbye to predatory 8% ticketing fees and delayed student club payouts.
+
+We built an institutional-grade, sub-second Proof-of-Vibe escrow protocol on Solana that pays organizers the second attendees check in. ⚡️🧵👇

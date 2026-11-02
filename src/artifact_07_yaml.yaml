@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  univibe-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: univibe-relay-sentinel
+    restart: always
+    environment:
+      - PORT=8080
+      - SOLANA_RPC_HTTP=https://api.devnet.solana.com
+      - SOLANA_RPC_WS=wss://api.devnet.solana.com
+      - PROGRAM_ID=V1be7d2MKMz3B8e1Vw9N4Kz8C6uV8hR3XjB2pC4jA9Z
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

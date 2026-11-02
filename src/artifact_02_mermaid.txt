@@ -1,52 +1,49 @@
 flowchart TD
-    subgraph Client Layer
-        Builder[University Builder / Student]
-        Sponsor[Hackathon Sponsor / DAO Allocator]
-        Peer[Verified Collegiate Peer]
+    subgraph Client & Oracles ["Layer 1: Actors & Autonomous Clients"]
+        Sponsor["🎓 Sponsor / Organizer"]
+        Builder["💻 Collegiate Builder"]
+        Evaluator["⚖️ Evaluator / Oracle Quorum"]
+        Worker["🤖 UniVibe Event Relayer Daemon"]
     end
 
-    subgraph Off-Chain Enterprise Gateway
-        AuthEngine[Enterprise Attestation Service]
-        ResendAPI[Resend Transactional Email Engine]
-        DiscordHook[Discord / Slack Realtime Webhook]
-    end
-
-    subgraph Solana Runtime Engine [CampusFlow Program]
-        InitGrant[initialize_grant]
-        VerifyStudent[verify_student_attestation]
-        SubmitMilestone[submit_milestone]
-        CastVouch[cast_peer_vouch]
-        ReleaseFunds[release_milestone_funds]
+    subgraph SolanaCore ["Layer 2: Solana On-Chain Core (univibe_core)"]
+        InitVault["Instruction: initialize_grant_vault"]
+        SubmitMilestone["Instruction: submit_milestone"]
+        ApproveMilestone["Instruction: approve_milestone"]
+        ReleaseFunds["Instruction: release_milestone_payout"]
+        Clawback["Instruction: trigger_clawback"]
         
-        StateGrant[Grant State PDA]
-        StateStudent[Student Profile PDA]
-        StateMilestone[Milestone PDA]
-        VaultEscrow[PDA Token Escrow Vault]
+        PDA_Vault[("Vault PDA (Escrow Token/Native Account)")]
+        PDA_State[("Grant State PDA (Metadata, Milestones, Rules)")]
     end
 
-    subgraph Target Settlement
-        BuilderTokenAccount[Builder SPL Token Account]
+    subgraph ExternalTelemetry ["Layer 3: Enterprise Integration Engine"]
+        RPC["Solana RPC WebSocket Commitment Stream"]
+        WorkerService["Node.js Enterprise Automation Service"]
+        ResendAPI["📧 Resend Enterprise Email API"]
+        SlackDiscord["💬 Discord/Slack Webhook Gateways"]
     end
 
-    %% Flow interactions
-    Sponsor -->|1. Fund & Config Vault| InitGrant
-    InitGrant --> StateGrant
-    InitGrant --> VaultEscrow
+    %% Lifecycle Flows
+    Sponsor -->|"1. Init Vault & Deposit SOL/USDC"| InitVault
+    InitVault -->|"Allocates"| PDA_State
+    InitVault -->|"Locks Capital"| PDA_Vault
 
-    Builder -->|2. Verify Student Email| AuthEngine
-    AuthEngine -->|3. Dispatch Ed25519 Attestation Sig| VerifyStudent
-    VerifyStudent --> StateStudent
-    AuthEngine -.->|Send confirmation| ResendAPI
+    Builder -->|"2. Submit Deliverable (IPFS CID)"| SubmitMilestone
+    SubmitMilestone -->|"Mutates Milestone Status to PENDING"| PDA_State
 
-    Builder -->|4. Submit Deliverables| SubmitMilestone
-    SubmitMilestone --> StateMilestone
-    StateMilestone -.->|Alert Evaluators| DiscordHook
+    Evaluator -->|"3. Attest & Verify Milestone Proof"| ApproveMilestone
+    ApproveMilestone -->|"State = APPROVED"| PDA_State
 
-    Peer -->|5. Cast Quadratic Vouch| CastVouch
-    CastVouch --> StateMilestone
+    Builder -->|"4. Execute Payout Claim"| ReleaseFunds
+    ReleaseFunds -->|"Transfers Pro-Rata Funds"| PDA_Vault
+    PDA_Vault -->|"Disburses SOL/USDC"| Builder
 
-    Sponsor -->|6. Approve & Trigger Release| ReleaseFunds
-    ReleaseFunds --> StateMilestone
-    ReleaseFunds -->|CPI Transfer| VaultEscrow
-    VaultEscrow -->|Disburse SPL Tokens| BuilderTokenAccount
-    ReleaseFunds -.->|Disbursement Telemetry| DiscordHook
+    Sponsor -.->|"If Expired / Inactive"| Clawback
+    Clawback -.->|"Refunds Residual Balance"| PDA_Vault
+
+    %% Off-chain Event Observability
+    SolanaCore -.->|"Emits Anchor Events"| RPC
+    RPC -->|"Subscribes via WebSocket (confirmed)"| WorkerService
+    WorkerService -->|"Dispatches Transaction Confirmation"| ResendAPI
+    WorkerService -->|"Broadcasts Milestone Milestone Release"| SlackDiscord

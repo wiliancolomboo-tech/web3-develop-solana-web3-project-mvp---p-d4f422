@@ -1,0 +1,8 @@
+Campus founders shouldn't have to pause development to chase manual wire transfers.
+
+With @UniVibeProtocol on @Solana, building web3 projects on campus is frictionless, transparent, and unstoppable. 
+
+Check out our complete MVP repo & testnet live demo ⬇️
+github.com/univibe-solana/univibe-protocol
+
+Let the campus build vibe begin! 🚀🎓

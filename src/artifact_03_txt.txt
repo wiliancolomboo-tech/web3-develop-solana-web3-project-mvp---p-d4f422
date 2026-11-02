@@ -1,0 +1,28 @@
++---------------------------------------------------------------------------------+
+|                       CAMPUSPULSE ENTERPRISE TOPOLOGY                           |
++---------------------------------------------------------------------------------+
+| [CLIENT LAYER]                                                                  |
+|   + React / Next.js Front-End (Solana Mobile Wallet Adapter + Phantom/Solflare) |
+|   + Organizer Scanner PWA (Offline Ed25519 Nonce Generator & Local Signer)       |
++----------------------------------------+----------------------------------------+
+                                         |
+                                RPC Transports (WSS / HTTPS)
+                                         v
++----------------------------------------+----------------------------------------+
+| [SOLANA CORE ON-CHAIN PROGRAM]                                                  |
+|   + Core Program ID: Pulse111111111111111111111111111111111111111                |
+|   + Event PDA: [b"event", organizer_pubkey, event_id]                           |
+|   + Attendee PDA: [b"attendee", event_pubkey, attendee_pubkey]                  |
+|   + Dynamic Slashing & Forfeit Distribution Engine                              |
++----------------------------------------+----------------------------------------+
+                                         | Anchor WebSocket Event Emission
+                                         v
++----------------------------------------+----------------------------------------+
+| [AUTOMATION WORKER & ENTERPRISE DISPATCH DAEMON]                                |
+|   + RPC Connection Pool & Health Heartbeat                                      |
+|   + Idempotent Replay Buffer (Deduplication via On-Chain Tx Signatures)         |
+|   + Enterprise Endpoints:                                                       |
+|       - Resend API (SMTP Replacement / RFC-compliant HTML Receipts)            |
+|       - Discord Webhook Channel (Real-time Campus DAO Feed)                     |
+|       - Prometheus /metrics Exporter for SLA Monitoring                         |
++---------------------------------------------------------------------------------+

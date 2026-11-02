@@ -1,0 +1,5 @@
+⚡️ Powered by native @Solana Sealevel Anchor programs:
+• Programmatic PDA vaults hold sponsor SOL/USDC
+• Student grantees submit milestone proofs (GitHub PR / commit)
+• University reviewers sign on-chain approvals
+• Sub-second fund disbursements with instant Discord + @resend notifications! 📬

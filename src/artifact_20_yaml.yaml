@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  univibe-relayer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: univibe-event-worker
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - PROGRAM_ID=UniVibe111111111111111111111111111111111111
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - STUDENT_NOTIFICATION_EMAIL=${STUDENT_NOTIFICATION_EMAIL}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"

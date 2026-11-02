@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  telemetry-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: univibe-telemetry-daemon
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      - SOLANA_WS_URL=wss://api.devnet.solana.com
+      - PROGRAM_ID=VibeGRNT11111111111111111111111111111111111
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SENDER_EMAIL=grants@univibe.network
+      - ADMIN_EMAIL=sponsors@hackathon.org
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - PORT=8080
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
