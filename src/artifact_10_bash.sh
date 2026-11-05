@@ -15,7 +15,7 @@ PROGRAM_ID=$(solana address -k target/deploy/univibe_escrow-keypair.json)
 ANCHOR_WALLET=./secrets/relayer-keypair.json
 SLACK_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
 DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
-RESEND_API_KEY=re_live_enterprise_token_sample
+RESEND_API_KEY=re_test_000000000000000000000000
 ADMIN_EMAIL=grants@university.edu
 EOF
 

@@ -13,7 +13,7 @@ const SOLANA_RPC_HTTP = process.env.SOLANA_RPC_HTTP || "https://api.devnet.solan
 const PROGRAM_ID = new PublicKey(
   process.env.PROGRAM_ID || "V1be7d2MKMz3B8e1Vw9N4Kz8C6uV8hR3XjB2pC4jA9Z"
 );
-const RESEND_API_KEY = process.env.RESEND_API_KEY || "re_test_mock_123456789";
+const RESEND_API_KEY = process.env.RESEND_API_KEY || "re_test_000000000000000000000000";
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || "";
 const PORT = parseInt(process.env.PORT || "8080", 10);
 

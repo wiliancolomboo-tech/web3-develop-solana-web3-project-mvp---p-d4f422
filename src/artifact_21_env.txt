@@ -7,5 +7,5 @@ VIBE_PROGRAM_ID=V1beT8kZ9P3pMw4k9a9bF2nE1vJ6mQ8rY7xW4uD3tL1
 
 # Enterprise Telemetry Integrations
 DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
-RESEND_API_KEY=re_123456789_abcdefghijklmnopqrstuvwxyz
+RESEND_API_KEY=re_test_000000000000000000000000
 ALERT_EMAIL_RECIPIENT=dean@university.edu

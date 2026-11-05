@@ -11,7 +11,7 @@ services:
       - SOLANA_RPC_WS=wss://api.devnet.solana.com
       - PROGRAM_ID=V1bE5tReAm111111111111111111111111111111111
       - DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
-      - RESEND_API_KEY=re_live_SampleKeyPlaceholder
+      - RESEND_API_KEY=re_test_000000000000000000000000
       - NOTIFICATION_EMAIL=grants@vibestream.io
     logging:
       driver: "json-file"

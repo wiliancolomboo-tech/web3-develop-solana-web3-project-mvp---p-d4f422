@@ -12,7 +12,7 @@ solana program deploy target/deploy/univibe_core.so
 anchor test --skip-local-validator
 
 # 5. Launch Enterprise Relay Daemon via Docker Compose
-export RESEND_API_KEY="re_123456789_abcdefg"
+export RESEND_API_KEY="re_test_000000000000000000000000"
 export SLACK_WEBHOOK_URL="https://api.example.com/webhooks/alerts/placeholder"
 docker-compose up -d --build
 docker-compose logs -f

@@ -7,7 +7,7 @@ PROGRAM_ID=V1beEscrow1111111111111111111111111111111111
 
 # Enterprise Integration Credentials
 DISCORD_WEBHOOK_URL=https://api.example.com/webhooks/alerts/placeholder
-RESEND_API_KEY=re_123456789abcdefgh
+RESEND_API_KEY=re_test_000000000000000000000000
 RESEND_SENDER_EMAIL=grants@vibeprotocol.io
 DEMO_STUDENT_EMAIL=student.hacker@university.edu
 
